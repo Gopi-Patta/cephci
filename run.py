@@ -553,6 +553,13 @@ def run(args):
         details["status"] = "Not Executed"
         return details
 
+    if store and reuse is not None:
+        log.error(
+            "--store and --reuse are mutually exclusive arguments.\nPlease use --store for capturing snapshot"
+            " and --reuse for using the captured snapshot"
+        )
+        sys.exit(1)
+
     if reuse is None:
         try:
             ceph_cluster_dict, clients = create_nodes(
@@ -603,7 +610,7 @@ def run(args):
             for node in cluster:
                 node.reconnect()
     if store:
-        ceph_clusters_file = "rerun/ceph-snapshot-" + timestamp()
+        ceph_clusters_file = f"rerun/{instances_name}-{run_id}"
         if not os.path.exists(os.path.dirname(ceph_clusters_file)):
             os.makedirs(os.path.dirname(ceph_clusters_file))
         store_cluster_state(ceph_cluster_dict, ceph_clusters_file)
